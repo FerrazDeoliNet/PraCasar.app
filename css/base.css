@@ -1,0 +1,85 @@
+:root {
+  /* Palette */
+  --rose-900: #3d0014;
+  --rose-800: #5a0020;
+  --rose-700: #7b1040;
+  --rose-500: #b5476e;
+  --rose-400: #d4748e;
+  --rose-300: #e8a4b0;
+
+  /* Glass */
+  --glass-bg: rgba(255,255,255,0.09);
+  --glass-bg-strong: rgba(255,255,255,0.15);
+  --glass-bg-hover: rgba(255,255,255,0.22);
+  --glass-border: rgba(255,255,255,0.18);
+  --glass-border-strong: rgba(255,255,255,0.28);
+  --glass-shadow: 0 12px 40px rgba(30,0,12,0.35), 0 2px 8px rgba(30,0,12,0.2);
+  --glass-blur: blur(40px) saturate(180%);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.75);
+  --text-tertiary: rgba(255,255,255,0.5);
+
+  /* Accent */
+  --accent: #ff5a8a;
+  --accent-glow: rgba(255,90,138,0.45);
+
+  /* Radii */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  /* Fonts */
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--rose-800);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* macOS Tahoe background mesh */
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 0%, #7b1040 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 20%, #b5476e 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 100%, #d4748e 0%, transparent 60%),
+    linear-gradient(160deg, #3d0014 0%, #5a0020 40%, #7b1040 100%);
+  overflow: hidden;
+}
+
+.bg-mesh .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.55;
+  animation: float 24s ease-in-out infinite;
+}
+.blob-1 { top: -15%; left: -15%; width: 55vw; height: 55vw; background: #d4748e; }
+.blob-2 { bottom: -25%; right: -15%; width: 65vw; height: 65vw; background: #b5476e; animation-delay: -8s; }
+.blob-3 { top: 35%; right: 15%; width: 35vw; height: 35vw; background: #9a1a52; animation-delay: -14s; }
+
+@keyframes float {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(24px, -34px) scale(1.06); }
+}
+
+/* Shared utility */
+.col-center { text-align: center !important; }
+.col-narrow { width: 56px; }

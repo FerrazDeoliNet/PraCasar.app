@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4a0018">
+<title>Planejamento de Casamento</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+
+<!-- Background mesh (macOS Tahoe style) -->
+<div class="bg-mesh" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div id="sync-toast" class="toast">💾 Salvando...</div>
+
+<!-- Top bar (floating capsules) -->
+<header class="topbar">
+  <button class="glass-icon-btn" onclick="App.toggleSidebar()" aria-label="Menu">
+    <span class="hamburger"><span></span><span></span><span></span></span>
+  </button>
+
+  <div class="topbar-title">
+    <span class="brand">💍</span>
+    <span class="brand-name">Nosso Casamento</span>
+  </div>
+
+  <button id="editModeBtn" class="glass-pill-btn" onclick="App.toggleEditMode()">
+    <span class="btn-label">Editar</span>
+  </button>
+</header>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="App.toggleSidebar()"></div>
+
+<!-- Sidebar (macOS Tahoe floating) -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">💍 Planejamento</div>
+    <div class="sidebar-subtitle">Nosso grande dia</div>
+  </div>
+
+  <nav class="sidebar-menu">
+    <button class="sidebar-item active" data-view="convidados" onclick="App.switchView('convidados', event)">
+      <span class="sidebar-icon">👥</span><span class="sidebar-label">Convidados</span>
+    </button>
+    <button class="sidebar-item" data-view="churrasco" onclick="App.switchView('churrasco', event)">
+      <span class="sidebar-icon">🍖</span><span class="sidebar-label">Churrasco</span>
+    </button>
+    <button class="sidebar-item" data-view="decoracao" onclick="App.switchView('decoracao', event)">
+      <span class="sidebar-icon">💐</span><span class="sidebar-label">Decoração</span>
+    </button>
+    <button class="sidebar-item" data-view="musica" onclick="App.switchView('musica', event)">
+      <span class="sidebar-icon">🎵</span><span class="sidebar-label">Música</span>
+    </button>
+    <button class="sidebar-item" data-view="midia" onclick="App.switchView('midia', event)">
+      <span class="sidebar-icon">📸</span><span class="sidebar-label">Mídia & Fotos</span>
+    </button>
+    <button class="sidebar-item" data-view="valores" onclick="App.switchView('valores', event)">
+      <span class="sidebar-icon">💰</span><span class="sidebar-label">Valores</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <span class="folder-status" id="folderStatus">Conectando ao Supabase...</span>
+    <button class="io-btn" onclick="App.exportAllData()">⬇️ Exportar dados</button>
+    <button class="io-btn" onclick="document.getElementById('importFileInput').click()">⬆️ Importar dados</button>
+    <input type="file" id="importFileInput" accept="application/json,.json" hidden>
+  </div>
+</aside>
+
+<!-- Bottom nav (One UI 9 style, mobile only) -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bottom-nav-item active" data-view="convidados" onclick="App.switchView('convidados', event)">
+    <span class="bn-icon">👥</span><span class="bn-label">Convidados</span>
+  </button>
+  <button class="bottom-nav-item" data-view="churrasco" onclick="App.switchView('churrasco', event)">
+    <span class="bn-icon">🍖</span><span class="bn-label">Churrasco</span>
+  </button>
+  <button class="bottom-nav-item" data-view="decoracao" onclick="App.switchView('decoracao', event)">
+    <span class="bn-icon">💐</span><span class="bn-label">Decoração</span>
+  </button>
+  <button class="bottom-nav-item" data-view="musica" onclick="App.switchView('musica', event)">
+    <span class="bn-icon">🎵</span><span class="bn-label">Música</span>
+  </button>
+  <button class="bottom-nav-item" data-view="valores" onclick="App.switchView('valores', event)">
+    <span class="bn-icon">💰</span><span class="bn-label">Valores</span>
+  </button>
+</nav>
+
+<!-- Main content -->
+<main class="app-main">
+  <div class="page-title">
+    <h1>Nosso Casamento</h1>
+    <p id="pageSubtitle">Lista Geral de Convidados</p>
+  </div>
+
+  <!-- CONVIDADOS -->
+  <section id="view-convidados" class="view-section active">
+    <div class="pending-banner">
+      <span class="pending-icon">📪</span>
+      <div>
+        <span class="pending-num" id="cnt-pending">0</span>
+        <span class="pending-label">convites ainda não enviados</span>
+      </div>
+    </div>
+    <div class="counters">
+      <div class="counter-card"><span class="counter-icon">📨</span><span class="counter-num" id="cnt-inv">0</span><span class="counter-label">Enviados</span></div>
+      <div class="counter-card"><span class="counter-icon">❌</span><span class="counter-num" id="cnt-no">0</span><span class="counter-label">Não vão</span></div>
+      <div class="counter-card"><span class="counter-icon">⏳</span><span class="counter-num" id="cnt-wait">0</span><span class="counter-label">Aguardando</span></div>
+      <div class="counter-card"><span class="counter-icon">✅</span><span class="counter-num" id="cnt-yes">0</span><span class="counter-label">Confirmados</span></div>
+    </div>
+    <div class="panels" id="panels"></div>
+  </section>
+
+  <!-- CHURRASCO -->
+  <section id="view-churrasco" class="view-section">
+    <div class="pending-banner">
+      <span class="pending-icon">📪</span>
+      <div>
+        <span class="pending-num" id="cnt-pending-ch">0</span>
+        <span class="pending-label">convites ainda não enviados</span>
+      </div>
+    </div>
+    <div class="counters">
+      <div class="counter-card"><span class="counter-icon">📨</span><span class="counter-num" id="cnt-inv-ch">0</span><span class="counter-label">Enviados</span></div>
+      <div class="counter-card"><span class="counter-icon">❌</span><span class="counter-num" id="cnt-no-ch">0</span><span class="counter-label">Não vão</span></div>
+      <div class="counter-card"><span class="counter-icon">⏳</span><span class="counter-num" id="cnt-wait-ch">0</span><span class="counter-label">Aguardando</span></div>
+      <div class="counter-card"><span class="counter-icon">✅</span><span class="counter-num" id="cnt-yes-ch">0</span><span class="counter-label">Confirmados</span></div>
+    </div>
+    <div class="panels" id="panelsChurrasco"></div>
+  </section>
+
+  <!-- DECORAÇÃO -->
+  <section id="view-decoracao" class="view-section">
+    <div class="module-card">
+      <h3>Itens de Decoração</h3>
+      <div class="general-form">
+        <input type="text" id="decorInput" class="general-input" placeholder="Ex: Arranjos de mesa, Flores...">
+        <input type="text" id="decorVendor" class="general-input" placeholder="Fornecedor / Observação">
+        <button class="add-btn" onclick="App.addDecorItem()">+</button>
+      </div>
+      <div class="glass-table-wrap">
+        <table class="general-table">
+          <thead><tr><th>Item</th><th>Fornecedor/Obs</th><th class="col-center">Status</th><th class="col-narrow"></th></tr></thead>
+          <tbody id="decorTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÚSICA -->
+  <section id="view-musica" class="view-section">
+    <div class="module-card">
+      <h3>Repertório e Músicas</h3>
+      <div class="general-form">
+        <input type="text" id="musicTitle" class="general-input" placeholder="Nome da Música">
+        <input type="text" id="musicMoment" class="general-input" placeholder="Momento (Entrada, Valsa...)">
+        <button class="add-btn" onclick="App.addMusicItem()">+</button>
+      </div>
+      <div class="glass-table-wrap">
+        <table class="general-table">
+          <thead><tr><th>Música</th><th>Momento</th><th class="col-narrow"></th></tr></thead>
+          <tbody id="musicTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÍDIA -->
+  <section id="view-midia" class="view-section">
+    <div class="module-card">
+      <h3>Fotos, Vídeos e Mídia</h3>
+      <div class="general-form">
+        <input type="text" id="mediaTask" class="general-input" placeholder="Tarefa (Ensaio, Álbum...)">
+        <button class="add-btn" onclick="App.addMediaItem()">+</button>
+      </div>
+      <div class="glass-table-wrap">
+        <table class="general-table">
+          <thead><tr><th>Tarefa / Projeto</th><th class="col-center">Concluído</th><th class="col-narrow"></th></tr></thead>
+          <tbody id="mediaTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALORES -->
+  <section id="view-valores" class="view-section">
+    <div class="module-card">
+      <h3>Orçamento e Despesas</h3>
+      <div class="budget-total">
+        <span>Total Gasto / Previsto:</span>
+        <strong id="totalBudget">R$ 0,00</strong>
+      </div>
+      <div class="general-form">
+        <input type="text" id="budgetItem" class="general-input" placeholder="Despesa (Buffet, Local...)">
+        <input type="number" id="budgetCost" class="general-input" placeholder="Valor (R$)" style="max-width:130px">
+        <button class="add-btn" onclick="App.addBudgetItem()">+</button>
+      </div>
+      <div class="glass-table-wrap">
+        <table class="general-table">
+          <thead><tr><th>Despesa</th><th>Valor (R$)</th><th class="col-narrow"></th></tr></thead>
+          <tbody id="budgetTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-footer">💍 Planejamento de Casamento · build 1.0.0</div>
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
